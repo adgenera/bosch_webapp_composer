@@ -1,0 +1,12 @@
+# This file provides mapping functionality between your real data file signal labels and internally used signal labels.;;;;;;;;;;;;;;;;;;;
+# Every alias definition consists of to columns (signal label and signal device).;;;;;;;;;;;;;;;;;;;
+# You can define as many aliases as you want.;;;;;;;;;;;;;;;;;;;
+# Left columns have a higher priority than right columns.;;;;;;;;;;;;;;;;;;;
+# If alias1 was not found in data file, alias2 column is used and so forth.;;;;;;;;;;;;;;;;;;;
+# All empty lines and lines beginning with # or an empty cell will be ignored.;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;
+Matlab-Label;Unit;Description;Stop criteria;Alias1;Device1;Alias2;Device2;Alias3;Device3;Alias4;Device4;Alias5;Device5;Alias6;Device6;Alias7;Device7;Alias8;Device8
+Engine Speed;;;
+InjCrv_qSetUnBal;;;
+Vehicle Speed;;;
+Gear number;;;

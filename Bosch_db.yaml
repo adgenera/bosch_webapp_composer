@@ -1,0 +1,174 @@
+
+services:
+ 
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx_container/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx_container/1012223.pem:/etc/ssl/certs/1012223.pem
+      - ./nginx_container/1012223.pem:/etc/ssl/private/1012223.pem
+    ports:
+      - 3300:3300
+    restart: always
+    networks:
+      adgenera_bosh_db_network:
+    depends_on:
+      - bosch-db-fe
+
+  bosch-db-be:
+   restart: always
+   build:
+      context: .\usecase_db_BE
+      dockerfile: Dockerfile
+   container_name: bosch_db_be_container
+   ports:
+     - 8080:8080
+   command: uvicorn main:app --host 0.0.0.0 --port 8080
+   networks:
+     adgenera_bosh_db_network:
+   volumes:
+    - C:\Bosch\saved_confs:/app/saved_confs
+    - C:\Bosch\bosch_eatb_convert:/app/bosch_eatb_convert
+   environment:
+    - APP_CLIENT_ID=ceb138ac-0d53-4f0e-a7c5-4b503420b7ef 
+    - MONGO_DB_HOST=mongodb
+    - MONGO_DB_PASSWORD=adgenera2023!
+    - MONGO_DB_PORT=27017
+    - MONGO_DB_USERNAME=root
+    - OPENAPI_CLIENT_ID=ceb138ac-0d53-4f0e-a7c5-4b503420bef
+    - TENANT_ID=ca68a89c-deca-4fd5-aca7-3b03cc255859
+    - FILE_SAVE_PATH=./saved_confs
+    - EATB_CONVERT_URL=http://host.docker.internal:6000
+    - ABSOLUTE_CONF_ROOT_PATH=C:\Bosch\saved_confs
+    - EATB_CONVERT_PATH=./bosch_eatb_convert
+
+  bosch-db-fe:
+    restart: always
+    stdin_open: true
+    tty: true
+    build:
+      context: .\usecase_db_FE
+      dockerfile: Dockerfile
+    container_name: bosch_db_fe_container
+    ports:
+     - 3002:3000
+    # command: npm run dev
+    command: npm run start
+    networks:
+      adgenera_bosh_db_network:
+    environment:
+     - AZURE_AD_CLIENT_ID=b672c79e-1891-4d60-a7aa-006b3c329f51
+     - AZURE_AD_CLIENT_SECRET=95fbf71c-df4d-465d-be8d-0346c8b0b90d
+     - NODE_TLS_REJECT_UNAUTHORIZED=0
+     - AZURE_AD_TENANT_ID=0ae51e19-07c8-4e4b-bb6d-648ee58410f4
+     - NEXTAUTH_SECRET=UHhnELSCrZrwSk2pL7meeplv0a7mJv7MjePIndFzUSo= 
+     # - NEXTAUTH_URL=http://192.168.1.25:3000/ 
+     - NEXT_PUBLIC_BE_URL=http://bosch_db_be_container:8080
+     - NEXTAUTH_URL=https://localhost:3300/ 
+     # - NEXT_PUBLIC_BE_URL=http://host.docker.internal:8080
+     # line removed to disable authentication (error from access internal bosch PC)- AUTHENTICATION=1
+     - AUTHENTICATION=0
+     - UNAUTHENTICATED_USER=admin@admin.it
+     - UNAUTHENTICATED_USER_PASSWORD=password
+ 
+  mongodb:
+   container_name: mongodb
+   image: mongo:latest
+   restart: always
+   ports:
+     - 27017:27017
+   networks:
+     adgenera_bosh_db_network:
+   volumes:
+     - C:\AdGenera\MongoDb:/data/db
+   environment:
+     MONGO_INITDB_ROOT_USERNAME: root
+     MONGO_INITDB_ROOT_PASSWORD: adgenera2023!
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: adgenera2023!
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_PORT: "27017"
+    ports:
+      - 8081:8081
+    networks:
+      adgenera_bosh_db_network:
+    depends_on:
+      - mongodb
+
+  adgenera_fe:
+    restart: always
+    build:
+      context: .\bosch_fe
+      dockerfile: Dockerfile
+    container_name: adgenera_fe
+    ports:
+      - 3001:3000
+    command: npm run start
+    networks:
+      adgenera_bosh_db_network:
+    environment:
+      - NEXT_PUBLIC_BE_URL=http://nginxbosch:80
+      - NEXT_PUBLIC_NOT_DOCKER_URL=http://127.0.0.1:8500
+    depends_on:
+      - adgenera_be
+
+  adgenera_be:
+    restart: always
+    build:
+      context: .\bosch_be
+      dockerfile: Dockerfile
+    command: sh -c "python manage.py migrate &&
+      python manage.py collectstatic --noinput &&
+      gunicorn --bind 0.0.0.0:5000 --workers 3 --error-logfile /app/logs/error.log AdGeneraBe.wsgi:application"
+    container_name: adgenera_be
+    expose:
+      - 5000
+    networks:
+      adgenera_bosh_db_network:
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+      - C:\AdGenera\PathCodes:/app/pathcodes
+      - C:\AdGenera\Recordervehicle:/app/recordervehicle
+      - C:\AdGenera\CSV_FILE_PATH:/app/csv_file
+    environment:
+      - DATABASE_HOST_NAME=mongodb
+      - DATABASE_PORT=27017
+      - DATABASE_USERNAME=root
+      - DATABASE_PW=adgenera2023!
+      - DJANGO_SUPERUSER_USERNAME=adminbosch@adgenera.it
+      - DJANGO_SUPERUSER_PASSWORD=adgenera
+      - DEBUG=1
+      - PATHCODE=/app/pathcodes
+      - RECORDERS=/app/recordervehicle
+      - CSV_FILE_PATH=/app/csv_file
+      - REPORTS_PATH=D:\RecorderVehicle
+    depends_on:
+      - mongodb
+
+  nginxbosch:
+    build:
+      context: .\bosch_be\Nginx
+      dockerfile: Dockerfile
+    ports:
+      - 8500:80
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    networks:
+      adgenera_bosh_db_network:
+    depends_on:
+      - adgenera_be
+    restart: "on-failure"
+
+networks:
+  adgenera_bosh_db_network:
+volumes:
+  static_volume:
+  media_volume:

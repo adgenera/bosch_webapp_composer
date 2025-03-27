@@ -1,0 +1,75 @@
+
+services:
+ 
+  bosch-db-be:
+   restart: always
+   image: andreacencio/usecase_db:BE-latest
+   container_name: bosch_db_be_container
+   ports:
+     - 8080:8080
+   command: uvicorn main:app --host 0.0.0.0 --port 8080
+   networks:
+     adgenera_bosh_db_network:
+   environment:
+    - APP_CLIENT_ID=ceb138ac-0d53-4f0e-a7c5-4b503420b7ef 
+    - MONGO_DB_HOST=mongodb
+    - MONGO_DB_PASSWORD=adgenera2023!
+    - MONGO_DB_PORT=27017
+    - MONGO_DB_USERNAME=root
+    - OPENAPI_CLIENT_ID=ceb138ac-0d53-4f0e-a7c5-4b503420bef
+    - TENANT_ID=ca68a89c-deca-4fd5-aca7-3b03cc255859
+
+  bosch-db-fe:
+    restart: always
+    image: andreacencio/usecase_db:FE-latest
+    container_name: bosch_db_fe_container
+    ports:
+      - 3000:3000
+    command: npm run dev
+    networks:
+      adgenera_bosh_db_network:
+    environment:
+     - AZURE_AD_CLIENT_ID=b672c79e-1891-4d60-a7aa-006b3c329f51
+     - AZURE_AD_CLIENT_SECRET=95fbf71c-df4d-465d-be8d-0346c8b0b90d
+     - NODE_TLS_REJECT_UNAUTHORIZED=0
+     - AZURE_AD_TENANT_ID=0ae51e19-07c8-4e4b-bb6d-648ee58410f4
+     - NEXTAUTH_SECRET=UHhnELSCrZrwSk2pL7meeplv0a7mJv7MjePIndFzUSo= 
+     - NEXTAUTH_URL=http://localhost:3000/ 
+     - NEXT_PUBLIC_BE_URL=http://bosch_db_be_container:8080
+     # line removed to disable authentication (error from access internal bosch PC)- AUTHENTICATION=1
+     - AUTHENTICATION=0
+ 
+  mongodb:
+   container_name: mongodb
+   image: mongo:latest
+   restart: always
+   ports:
+     - "127.0.0.1:27017:27017"
+   networks:
+     adgenera_bosh_db_network:
+   volumes:
+     - C:\AdGenera\MongoDb:/data/db
+   environment:
+     MONGO_INITDB_ROOT_USERNAME: root
+     MONGO_INITDB_ROOT_PASSWORD: adgenera2023!
+
+  mongo-express:
+   image: mongo-express:latest
+   container_name: mongo-express
+   environment:
+     ME_CONFIG_MONGODB_ADMINUSERNAME: root
+     ME_CONFIG_MONGODB_ADMINPASSWORD: adgenera2023!
+     ME_CONFIG_MONGODB_SERVER: mongodb
+     ME_CONFIG_MONGODB_PORT: "27017"
+   ports:
+     - "127.0.0.1:8081:8081"
+   networks:
+     adgenera_bosh_db_network:
+   depends_on:
+     - mongodb
+
+networks:
+  adgenera_bosh_db_network:
+volumes:
+  static_volume:
+  media_volume:

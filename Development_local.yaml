@@ -1,0 +1,36 @@
+services:
+
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    restart: always
+    ports:
+      - "127.0.0.1:27017:27017"
+    networks:
+      adgenera_development_network:
+    volumes:
+      - C:\AdGenera\MongoDb:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: adgenera2023!
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: adgenera2023!
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_PORT: "27017"
+    ports:
+      - "127.0.0.1:8081:8081"
+    networks:
+      adgenera_development_network:
+    depends_on:
+      - mongodb
+
+networks:
+  roxpay_adgenera_development_network:
+volumes:
+  static_volume:
+  media_volume:

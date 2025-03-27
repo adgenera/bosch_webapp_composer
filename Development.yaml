@@ -1,0 +1,103 @@
+
+services:
+
+  ad_genera_dev:
+    restart: always
+    image: 336208436497.dkr.ecr.eu-central-1.amazonaws.com/adgenera:latest
+    container_name: ad_genera_container_dev
+    ports:
+      - 3000:3000
+    command: npm run dev
+    networks:
+      adgenera_development_network:
+    environment:
+      - NEXT_PUBLIC_BE_URL=http://nginxadgenera:80
+      - NEXT_PUBLIC_NOT_DOCKER_URL=http://127.0.0.1:8500
+
+  nginx:
+    image: 336208436497.dkr.ecr.eu-central-1.amazonaws.com/adgenerabengix:latest
+    container_name: nginxadgenera
+    ports:
+      - 8500:80
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    networks:
+      adgenera_development_network:
+    depends_on:
+      - adgenera_be
+
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    restart: always
+    ports:
+      - "127.0.0.1:27017:27017"
+    networks:
+      adgenera_development_network:
+    volumes:
+      - C:\AdGenera\MongoDb:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: adgenera2023!
+
+  adgenera_be:
+    restart: always
+    image: 336208436497.dkr.ecr.eu-central-1.amazonaws.com/adgenerabe:latest
+    command: sh -c "python manage.py migrate &&
+      python manage.py collectstatic --noinput &&
+      gunicorn --bind 0.0.0.0:5000 --workers 3 --error-logfile /app/logs/error.log AdGeneraBe.wsgi:application"
+    container_name: adgenera_be
+    expose:
+      - 5000
+    networks:
+      adgenera_development_network:
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+      - C:\AdGenera\PathCodes:/app/pathcodes
+      - C:\AdGenera\Recordervehicle:/app/recordervehicle
+      - C:\Users\pao9mi\Desktop\EATB\CSV:/app/csv_file
+      - C:\Users\pao9mi\Desktop\EATB\REPORTS\:/app/reports_file
+      - C:\EATB\MEASUREMENT_FOLDERS:/app/measurement_folders
+
+    environment:
+      - DATABASE_HOST_NAME=mongodb
+      - DATABASE_PORT=27017
+      - DATABASE_USERNAME=root
+      - DATABASE_PW=adgenera2023!
+      - DJANGO_SUPERUSER_USERNAME=adminbosch@adgenera.it
+      - DJANGO_SUPERUSER_PASSWORD=adgenera
+      - DEBUG=1
+      - PATHCODE=/app/pathcodes      # folder of the file to be distributed (incoming data)
+      - RECORDERS=/app/recordervehicle # file where to save the data tree  (sorted data)
+      - CSV_FILE_PATH=/app/csv_file  # directory to save exchange csv
+      - REPORTS_PATH=/app/reports_file  # output directory for the reports
+      - CUSTOMER_TEAM_LINK=so1-c-001qr.so.emea.bosch.com:8000
+      - CUSTOMER_TEAM_BACKUP_LINK=so1-c-000kx.so.emea.bosch.com:8000
+      - DEFAULT_FOLDER_FOR_RECORDER_CSV_PATH=/app/measurement_folders
+      - COMPUTER_DEFAULT_FOLDER_FOR_RECORDER_CSV_PATH=C:\EATB\MEASUREMENT_FOLDERS
+      - COMPUTER_REPORTS_PATH=C:\Users\pao9mi\Desktop\EATB\REPORTS
+    depends_on:
+      - mongodb
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: adgenera2023!
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_PORT: "27017"
+    ports:
+      - "127.0.0.1:8081:8081"
+    networks:
+      adgenera_development_network:
+    depends_on:
+      - mongodb
+
+networks:
+  adgenera_development_network:
+volumes:
+  static_volume:
+  media_volume:
