@@ -28,8 +28,8 @@ services:
    networks:
      adgenera_bosh_db_network:
    volumes:
-    - C:\Bosch\saved_confs:/app/saved_confs
-    - C:\Bosch\bosch_eatb_convert:/app/bosch_eatb_convert
+    - C:\Users\LorenzoIafigliola\Desktop\Files\Projects\Bosch_1\bosch_webapp_composer\saved_confs:/app/saved_confs
+    - C:\Users\LorenzoIafigliola\Desktop\Files\Projects\Bosch_1\bosch_webapp_composer\bosch_eatb_convert:/app/bosch_eatb_convert
    environment:
     - APP_CLIENT_ID=ceb138ac-0d53-4f0e-a7c5-4b503420b7ef 
     - MONGO_DB_HOST=mongodb
@@ -40,7 +40,7 @@ services:
     - TENANT_ID=ca68a89c-deca-4fd5-aca7-3b03cc255859
     - FILE_SAVE_PATH=./saved_confs
     - EATB_CONVERT_URL=http://host.docker.internal:6000
-    - ABSOLUTE_CONF_ROOT_PATH=C:\Bosch\saved_confs
+    - ABSOLUTE_CONF_ROOT_PATH=C:\Users\LorenzoIafigliola\Desktop\Files\Projects\Bosch_1\bosch_webapp_composer\saved_confs
     - EATB_CONVERT_PATH=./bosch_eatb_convert
 
   bosch-db-fe:
@@ -81,7 +81,7 @@ services:
    networks:
      adgenera_bosh_db_network:
    volumes:
-     - C:\AdGenera\MongoDb:/data/db
+     - C:\Users\LorenzoIafigliola\Desktop\Files\Projects\Bosch_1\bosch_webapp_composer\MongoDb:/data/db
    environment:
      MONGO_INITDB_ROOT_USERNAME: root
      MONGO_INITDB_ROOT_PASSWORD: adgenera2023!
@@ -134,9 +134,9 @@ services:
     volumes:
       - static_volume:/app/static
       - media_volume:/app/media
-      - C:\AdGenera\PathCodes:/app/pathcodes
-      - C:\AdGenera\Recordervehicle:/app/recordervehicle
-      - C:\AdGenera\CSV_FILE_PATH:/app/csv_file
+      - C:\Users\LorenzoIafigliola\Desktop\Files\Projects\Bosch_1\bosch_webapp_composer\PathCodes:/app/pathcodes
+      - C:\Users\LorenzoIafigliola\Desktop\Files\Projects\Bosch_1\bosch_webapp_composer\Recordervehicle:/app/recordervehicle
+      - C:\Users\LorenzoIafigliola\Desktop\Files\Projects\Bosch_1\bosch_webapp_composer\CSV_FILE_PATH:/app/csv_file
     environment:
       - DATABASE_HOST_NAME=mongodb
       - DATABASE_PORT=27017
