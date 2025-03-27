@@ -1,0 +1,15 @@
+[submodule "bosch_fe"]
+	path = bosch_fe
+	url = git@github.com:adgenera/bosch_fe.git
+[submodule "bosch_be"]
+	path = bosch_be
+	url = git@github.com:adgenera/bosch_be.git
+[submodule "bosch_scheduler"]
+	path = bosch_scheduler
+	url = git@github.com:adgenera/bosch_scheduler.git
+[submodule "usecase_db_FE"]
+	path = usecase_db_FE
+	url = git@github.com:adgenera/usecase_db_FE.git
+[submodule "usecase_db_BE"]
+	path = usecase_db_BE
+	url = git@github.com:adgenera/usecase_db_BE.git
