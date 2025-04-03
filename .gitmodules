@@ -1,15 +1,20 @@
 [submodule "bosch_fe"]
 	path = bosch_fe
 	url = git@github.com:adgenera/bosch_fe.git
+	ignore = all
 [submodule "bosch_be"]
 	path = bosch_be
 	url = git@github.com:adgenera/bosch_be.git
+	ignore = all
 [submodule "bosch_scheduler"]
 	path = bosch_scheduler
 	url = git@github.com:adgenera/bosch_scheduler.git
+	ignore = all
 [submodule "usecase_db_FE"]
 	path = usecase_db_FE
 	url = git@github.com:adgenera/usecase_db_FE.git
+	ignore = all
 [submodule "usecase_db_BE"]
 	path = usecase_db_BE
 	url = git@github.com:adgenera/usecase_db_BE.git
+	ignore = all
